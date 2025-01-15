@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EACharge", "EACharge\EACharge.csproj", "{0A38D76F-9235-4CC9-A442-19BD1E1E2583}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NModbus", "NModbus\NModbus\NModbus.csproj", "{0159B07B-CBCE-40D3-88A8-4209A952DEB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NModbus.Serial", "NModbus\NModbus.Serial\NModbus.Serial.csproj", "{64B86118-0C3B-459A-B699-399F2A7CA17E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NModbus.SerialPortStream", "NModbus\NModbus.SerialPortStream\NModbus.SerialPortStream.csproj", "{24AF344D-A9FD-475A-AE82-F1BF71E48E10}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A38D76F-9235-4CC9-A442-19BD1E1E2583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A38D76F-9235-4CC9-A442-19BD1E1E2583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A38D76F-9235-4CC9-A442-19BD1E1E2583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A38D76F-9235-4CC9-A442-19BD1E1E2583}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0159B07B-CBCE-40D3-88A8-4209A952DEB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0159B07B-CBCE-40D3-88A8-4209A952DEB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0159B07B-CBCE-40D3-88A8-4209A952DEB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0159B07B-CBCE-40D3-88A8-4209A952DEB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64B86118-0C3B-459A-B699-399F2A7CA17E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64B86118-0C3B-459A-B699-399F2A7CA17E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64B86118-0C3B-459A-B699-399F2A7CA17E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64B86118-0C3B-459A-B699-399F2A7CA17E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24AF344D-A9FD-475A-AE82-F1BF71E48E10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24AF344D-A9FD-475A-AE82-F1BF71E48E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24AF344D-A9FD-475A-AE82-F1BF71E48E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24AF344D-A9FD-475A-AE82-F1BF71E48E10}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {841EB462-C5B0-4FC5-9722-E4B37E43A829}
+	EndGlobalSection
+EndGlobal
