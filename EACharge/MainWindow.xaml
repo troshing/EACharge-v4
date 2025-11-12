@@ -1,39 +1,42 @@
-﻿<Window x:Class="EACharge_Out.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:EACharge_Out"
+        xmlns:local="clr-namespace:EACharge"
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        xmlns:EACharge="clr-namespace:EACharge"  x:Class="EACharge.MainWindow"
         mc:Ignorable="d"
-        Title="Мониторинг сопротивления изоляции" FontSize="16"
-        Height="560" 
+        Title="ПАК МикроСРЗ-197" FontSize="16"
+        Height="650" 
         Width="1050"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize">
     <Window.Resources>
         <local:UintToBaudRateConverter x:Key="BaudConverter"/>
         <local:UintToParityConverter x:Key="ParityConverter"/>
-        <Style TargetType="TextBox">
+
+        <Style TargetType="{x:Type TextBox}">
             <Setter Property="Height" Value="23"/>
             <Setter Property="Width" Value="120"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
             <Setter Property="TextWrapping" Value="NoWrap"/>
-            <EventSetter Event="LostFocus" Handler="LastFocusedTextBox_LostFocus"/>
+            <EventSetter Event="UIElement.LostFocus" Handler="LastFocusedTextBox_LostFocus"/>
         </Style>
-        <Style TargetType="ComboBox">
+        <Style TargetType="{x:Type ComboBox}">
             <Setter Property="Height" Value="23"/>
             <Setter Property="Width" Value="120"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
-        <Style TargetType="Button">
+        <Style TargetType="{x:Type Button}">
             <Setter Property="Height" Value="20"/>
             <Setter Property="Width" Value="160"/>
         </Style>
     </Window.Resources>
-    <Grid Name="MainGrid">
+
+    <Grid x:Name="MainGrid">
         <StackPanel>
             <Menu>
                 <MenuItem Header="Меню" FontSize="16">
@@ -41,52 +44,52 @@
                           Header="Настройки соединения" 
                           Click="MenuItemSettings_Click"/>
                     <Separator/>
-                    <MenuItem   Name="menuItemExit"
+                    <MenuItem   x:Name="menuItemExit"
                                 Header="Выход" 
                                 Click="MenuItemExit_Click"/>
                 </MenuItem>
             </Menu>
-            <TabControl Name="tabControl" >
-                <TabItem Header="Настроечные параметры" FontWeight="Bold"    >
-                    <Grid x:Name="MyGrid1" Height="430">
+            <TabControl x:Name="tabControl">
+                <TabItem Header="Настроечные параметры" FontWeight="Bold" >
+                    <Grid x:Name="Options" Height="500">
                         <TextBlock Text="Уставка предварительной тревоги (кОм)" 
                                FontWeight="Bold"                                   
                                FontSize="16"
-                               Margin="46,15,0,0"                                        
+                               Margin="20,15,0,0"                                        
                                Height="70" 
-                               Width="143"/>
+                               Width="150"/>
                         <TextBlock Text="Уставка тревоги (кОм)" 
                                FontWeight="Bold"                               
                                FontSize="16"
-                               Margin="42,98,455,0"                                
+                               Margin="20,98,455,0"                                
                                Height="45" 
-                               Width="132"/>
+                               Width="150"/>
                         <TextBlock Text="Адрес устройства"                               
-                               Margin="46,162,0,0"                                
+                               Margin="20,162,0,0"                                
                                Height="50" 
-                               Width="104"/>
+                               Width="150"/>
                         <TextBlock Text="Скорость обмена(baudrate)"                              
-                               Margin="46,225,0,0"                               
-                               Height="40" 
-                               Width="132"/>
+                               Margin="20,225,0,0"                               
+                               Height="50" 
+                               Width="150"/>
                         <TextBlock Text="Четность"                                
-                               Margin="46,292,0,0"                                
+                               Margin="20,292,0,0"                                
                                Height="40" 
                                Width="80"/>
                         <TextBlock Text="Задержка"                                
-                               Margin="470,26,0,0"                              
-                               Height="45" 
+                               Margin="430,26,0,0"                              
+                               Height="40" 
                                Width="85"/>
                         <TextBlock Text="Имя устройства"                                
-                               Margin="450,89,0,0"                                
+                               Margin="430,89,0,0"                                
                                Height="45" 
-                               Width="101"/>
+                               Width="130"/>
                         <TextBlock Text="Идентификационный номер"                                 
-                               Margin="374,165,0,0"                                 
+                               Margin="430,165,0,0"                                 
                                Height="50" 
                                Width="181"/>
                         <TextBlock Text="Номер версии прошивки"                               
-                               Margin="450,252,0,0"                                
+                               Margin="430,252,0,0"                                
                                Height="45" 
                                Width="85"/>
                         <TextBox   x:Name="txtbxPreAlarm" Height="35" FontSize="20" FontWeight="Bold"                                                           
@@ -127,151 +130,242 @@
                                PreviewTextInput="NumberValidationTextBox" Width="85"/>
                         <TextBox   x:Name="txtbxDeviceName"  Height="30"                                
                                Margin="580,89,0,0"                                 
-                               Text="{Binding Registers[13].Value}"
+                               Text="{Binding DeviceName}"
                                IsReadOnly="True" Width="170"/>
                         <TextBox   x:Name="txtbxID"  Height="30"                               
-                               Margin="580,179,0,0"                                 
+                               Margin="620,179,0,0"                                 
                                Text="{Binding Registers[14].Value}"
                                IsReadOnly="True" Width="85"/>
                         <TextBox   x:Name="txtbxFirmwareVersion" Height="30" FontWeight="Bold"                              
                                Margin="580,259,0,0"                                
-                               Text="{Binding Registers[15].Value}"
-                               IsReadOnly="True" Width="85"    />
-                        <Button    x:Name="btnReadAllSettingRegisters" Height="50"
+                               Text="{Binding FirmwareVersion }"
+                               IsReadOnly="True" Width="85" />
+                        <Button x:Name="btnReadAllSettingRegisters" Height="50"
                                Content="Прочитать все регистры"
-                               Margin="772,21,52,359" 
+                               Margin="772,0,57,400" 
                                Click="BtnReadAllSettingRegisters_Click"/>
-                        <Button    x:Name="btnReadOneSettingRegister" Height="50"
+                        <Button x:Name="btnReadOneSettingRegister" Height="50"
                                Content="Прочитать один регистр"
-                               Margin="772,89,57,291" 
-                               Click="BtnReadOneSettingRegister_Click" 
-                               />
-                        <Button    x:Name="btnWriteOneSettingRegister" Height="50"
+                               Margin="772,40,57,300" 
+                               Click="BtnReadOneSettingRegister_Click" />
+                        <Button x:Name="btnWriteOneSettingRegister" Height="50"
                                Content="Записать один регистр"
-                               Margin="777,159,57,221" 
-                               Click="BtnWriteOneSettingRegister_Click" 
-                               />
-                        <Button    x:Name="btnSearchOfDevice" Height="50"
+                               Margin="777,40,57,150" 
+                               Click="BtnWriteOneSettingRegister_Click" />
+                        <Button x:Name="btnSearchOfDevice" Height="50"
                                Content="Найти устройство"
-                               Margin="772,221,57,159" 
-                               Click="BtnSearchOfDevice_Click"                                 
-                               />
-                        <Button    x:Name="btnReset" Height="50"
+                               Margin="772,180,57,150" 
+                               Click="BtnSearchOfDevice_Click" />
+                        <Button x:Name="btnReset" Height="50"
                                Content="Перезагрузить устройство"
-                               Margin="772,287,57,93" 
-                               Click="BtnReset_Click"  
-                               />
-                        <Button    x:Name="btnFactorySetting" Height="50"
-                               Content="Заводские настройки"
-                               Margin="772,356,57,24" Click="BtnFactorySetting_Click"                                  
-                               />
+                               Margin="772,280,57,100" 
+                               Click="BtnReset_Click" />
+                        <Button x:Name="btnFactorySetting" Height="50"
+                               Content="Заводские настройки" 
+                                Margin="772,356,57,24" 
+                                Click="BtnFactorySetting_Click" />
                     </Grid>
                 </TabItem>
                 <TabItem Header="Измерения" FontWeight="Bold" FontSize="16">
-                    <Grid x:Name="MyGrid2" Height="422">
-                        <TextBlock Text="Сопротивление сети (кОм)" FontWeight="Bold"                                
-                               Margin="46,26,0,0"                                
+                    <Grid x:Name="Measure" Height="500">
+                        <TextBlock Text="Сопротивление сети (кОм)"                                 
+                               Margin="20,26,0,0"                                
                                Height="45" 
-                               Width="143"/>
-                        <TextBlock Text="Напряжение АКБ (В)"  FontWeight="Bold"                             
-                               Margin="46,95,455,0"                                 
+                               Width="150"/>
+                        <TextBlock Text="Напряжение АКБ (В)"                            
+                               Margin="20,95,455,0"                                 
                                Height="45" 
                                Width="140"/>
-                        <TextBlock Text="Емкость сети (мкФ)" FontWeight="Bold"                              
+                        <TextBlock Text="Емкость сети (мкФ)"                              
                                Margin="415,26,0,0"                                
                                Height="45" 
                                Width="132"/>
-                        <TextBlock Text="Напряжение U+ (В)"  FontWeight="Bold"                                                           
-                               Margin="46,172,0,0"                               
+                        <TextBlock Text="Напряжение U+ (В)"                                                             
+                               Margin="20,172,0,0"                               
                                Height="44" 
                                Width="130"/>
                         <!-- Margin="46,225,0,0" -->
-                        <TextBlock Text="Напряжение U- (В)" FontWeight="Bold"                               
-                               Margin="46,249,0,0"                                
+                        <TextBlock Text="Напряжение U- (В)"                              
+                               Margin="20,249,0,0"                                
                                Height="45" 
                                Width="125"/>
-                        <TextBlock Text="Сопротивление R+ (кОм)" FontWeight="Bold"                               
+                        <TextBlock Text="Сопротивление R+ (кОм)"                               
                                Margin="415,89,0,0"                                 
                                Height="45" 
                                Width="155"/>
-                        <TextBlock Text="Сопротивление R- (кОм)" FontWeight="Bold"                                
+                        <TextBlock Text="Сопротивление R- (кОм)"                               
                                Margin="415,159,0,0"                                 
                                Height="45" 
                                Width="155"/>
                         <TextBox   x:Name="txtbxResistance" Height="40" FontSize="20" FontWeight="Bold"                              
                                Margin="199,26,0,0"                                 
-                               Text="{Binding Registers[0].Value, StringFormat={}{0:F1}}"
+                               Text="{Binding Registers[0].Value, StringFormat=\{0:F1\}}"
                                    IsReadOnly="True"/>
-                        <TextBox   x:Name="txtbxVoltage" Height="35" FontSize="20" FontWeight="Bold"                               
+                        <TextBox x:Name="txtbxVoltage" Height="35" FontSize="20" FontWeight="Bold"                               
                                Margin="199,89,0,0"                                
-                               Text="{Binding Registers[1].Value, StringFormat={}{0:F1}}"
+                               Text="{Binding Registers[1].Value, StringFormat=\{0:F1\}}"
                                    IsReadOnly="True"/>
-                        <TextBox   x:Name="txtbxCapacitance" Height="30"                                
+                        <TextBox x:Name="txtbxCapacitance" Height="30"                                
                                    Margin="580,26,0,0"                                 
-                                   Text="{Binding Registers[2].Value, StringFormat={}{0:F1}}"
+                                   Text="{Binding Registers[2].Value, StringFormat=\{0:F1\}}"
                                    IsReadOnly="True"/>
-                        <TextBox   x:Name="txtbxVoltagePlus" Height="36" FontSize="20" FontWeight="Bold"                               
+                        <TextBox x:Name="txtbxVoltagePlus" Height="36" FontSize="20" FontWeight="Bold"                               
                                Margin="199,176,0,0"                                 
-                               Text="{Binding Registers[3].Value, StringFormat={}{0:F1}}"
+                               Text="{Binding Registers[3].Value, StringFormat=\{0:F1\}}"
                                    IsReadOnly="True"/>
-                        <TextBox   x:Name="txtbxVoltageMinus" Height="35" FontSize="20" FontWeight="Bold"                                
+                        <TextBox x:Name="txtbxVoltageMinus" Height="35" FontSize="20" FontWeight="Bold"                                
                                Margin="199,249,0,0"                                 
-                               Text="{Binding Registers[4].Value, StringFormat={}{0:F1}}"
+                               Text="{Binding Registers[4].Value, StringFormat=\{0:F1\}}"
                                    IsReadOnly="True"/>
-                        <TextBox   x:Name="txtbxResistancePlus" Height="40" FontSize="20" FontWeight="Bold"                               
+                        <TextBox x:Name="txtbxResistancePlus" Height="40" FontSize="20" FontWeight="Bold"                               
                                Margin="580,89,0,0"                                 
-                               Text="{Binding Registers[5].Value, StringFormat={}{0:F1}}"
+                               Text="{Binding Registers[5].Value, StringFormat=\{0:F1\}}"
                                    IsReadOnly="True"/>
                         <TextBox x:Name="txtbxResistanceMinus"  Height="40" FontSize="20" FontWeight="Bold"                               
                                Margin="580,159,0,0"                                 
-                               Text="{Binding Registers[6].Value, StringFormat={}{0:F1}}"
-                                   IsReadOnly="True"/>
-                        <Button x:Name="btnReadAllMeasuringRegisters" Height="NaN"
-                               Content="Прочитать все регистры" FontWeight="Bold"
-                               Margin="767,24,67,349" 
-                               Click="BtnReadAllMeasuringRegisters_Click" 
-                               />
-                        <Button x:Name="btnReadOneMeasuringRegister" Height="NaN"
-                               Content="Прочитать один регистр" FontWeight="Bold"
-                               Margin="767,106,67,268" 
-                              Click="BtnReadOneMeasuringRegister_Click"                            
-                               />
-                        <Button x:Name="btnStartStopPoll" 
-                            Height="NaN"
+                               Text="{Binding Registers[6].Value, StringFormat=\{0:F1\}}"
+                                IsReadOnly="True"/>
+                        <Button x:Name="btnReadAllMeasuringRegisters" Height="50"
+                               Content="Прочитать все регистры" 
+                               Margin="767,0,67,420" 
+                               Click="BtnReadAllMeasuringRegisters_Click" />
+                        <Button x:Name="btnReadOneMeasuringRegister" Height="50"
+                               Content="Прочитать один регистр" 
+                               Margin="767,0,67,270" 
+                              Click="BtnReadOneMeasuringRegister_Click" />
+                        <Button x:Name="btnStartStopPoll" Height="50"
                             Content="Начать опрос" 
-                            FontWeight="Bold"
-                            Margin="767,186,67,192" Click="BtnStartStopPoll_Click"                                                                    
-                               />
-                        <TextBlock Text="Интервал опроса, мс :" FontWeight="Bold"                              
+                            Margin="767,0,67,120" Click="BtnStartStopPoll_Click" />
+                        <TextBlock Text="Интервал опроса, мс:"                             
                             Margin="764,266,0,0"                                 
                             Height="46" 
-                            Width="166"/>
-                        <wpfTool:IntegerUpDown Name="numUpDownInterval"
-                                               Margin="780,328,126,52"
-                                               Text="500" FontWeight="Bold" FontSize="18"
-                                               TextAlignment="Center" RenderTransformOrigin="0.489,1.037"/>
+                            Width="170"/>
+                        <wpfTool:IntegerUpDown 
+                            x:Name="numUpDownInterval"
+                            Margin="780,328,120,130"
+                            Text="500" FontWeight="Bold" FontSize="18"
+                            TextAlignment="Center" RenderTransformOrigin="0.489,1.037"/>
 
                         <TextBlock x:Name="txtAlarm"
                             Margin="415,220,0,0"                            
-                            Foreground ="{Binding Path = ForegroundAlarm}"                                    
-                            Text="{Binding Path = TextAlarm}"                        
+                            Foreground ="{Binding ForegroundAlarm}"                                    
+                            Text="{Binding TextAlarm}"                        
                             Height="50" Width="225" 
                             RenderTransformOrigin="0.348,-0.771" FontWeight="Bold" FontSize="24"/>
 
                         <TextBlock x:Name="txtMode"
                         Margin="415,290,0,0" 
-                        Text="{Binding Path= TextMode, IsAsync=True}"
-                        Foreground ="{Binding Path = ForegroundMode}"    
+                        Text="{Binding TextMode, IsAsync=True}"
+                        Foreground ="{Binding ForegroundMode}"    
                         Height="50" Width="150" 
                         RenderTransformOrigin="0.348,-0.771" FontWeight="Bold" FontSize="24"/>
+
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Загрузчик" FontWeight="Bold" FontSize="16" IsEnabled="False">
+                    <Grid x:Name="Bootloader" Height="500">
+                        <Button
+                            x:Name="btnGetProtectLevel"
+                            Height="50"
+                            Margin="767,0,70,440"
+                            Click="BtnGetProtectLevel_Click" IsEnabled="False">
+                            <TextBlock
+                                FontSize="14"
+                                FontWeight="Bold"
+                                Text="Прочитать уровень защиты"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap" />
+                        </Button>
+                        <Button
+                            x:Name="btnOpenFile"
+                            Height="50"
+                            Margin="767,0,67,300"
+                            Click="BtnOpenFile_Click" IsEnabled="False">
+                            <TextBlock
+                                FontSize="14"
+                                FontWeight="Bold"
+                                Text="Открыть прошивку"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap" />
+                        </Button>
+                        <Button
+                            x:Name="btnSendProgramm"
+                            Height="50"
+                            Margin="767,0,67,150"
+                            Click="BtnSendProgramm_Click" IsEnabled="False">
+                            <TextBlock
+                                FontSize="14"
+                                FontWeight="Bold"
+                                Text="Начать программирование"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap" />
+                        </Button>
+
+                        <Button
+                            x:Name="btnReloadBoot"
+                            Height="50"
+                            Margin="767,0,67,10"
+                            Click="BtnReloadBoot_Click" IsEnabled="False">
+                            <TextBlock
+                                FontSize="14"
+                                FontWeight="Bold"
+                                Text="Перезагрузка BootLoader"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap" />
+                        </Button>
+                        <ComboBox
+                            x:Name="cmbbxProtectLevel"                      
+                            Margin="199,230,0,0"
+                            IsReadOnly="True"
+                            Text="{Binding Registers[19].Value }" Width="173" IsEnabled="False">
+                            <ComboBoxItem Content="PROTECTION_NONE"  />
+                            <ComboBoxItem Content="PROTECTION_WRP"   />
+                            <ComboBoxItem Content="PROTECTION_RDP"   />
+                            <ComboBoxItem Content="PROTECTION_PCROP" />
+                        </ComboBox>
+
+                        <ProgressBar
+                            x:Name="ProgBar"
+                            Height="40"
+                            VerticalAlignment="Bottom"
+                            Maximum="100"
+                            Minimum="0" IsEnabled="False" />
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Bottom"
+                            Text="{Binding ElementName=ProgBar, Path=Value, StringFormat={}{0:0}%}" />
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="МотоЧасы" FontWeight="Bold" FontSize="16">
+                    <Grid x:Name="Test" Height="500">
+                        <Button x:Name="btnTestMotoCounter" Height="60" Width="180"
+                          Content="Тест МотоЧасов"
+                          Margin="400,0,0,300" 
+                          Click="btnTestMotoCounter_Click" IsEnabled="False" />
+
+                        <Button x:Name="btnReadMotoCounter" Height="60" Width="180"
+                          Content="Считать МотоЧасы"
+                          Margin="400,0,0,100" 
+                          Click="btnReadMotoCounter_Click" />
+
+                        <Button x:Name="btnSaveMotoCounter" Height="60" Width="180"                                                   
+                           Click="btnSaveMotoCounter_Click"
+                           Margin="600,280,180,160" 
+                           Content="Записать заводские МотоЧасы" />
+
+                        <TextBox x:Name="txtbxMotoCounter" Height="50" Width="500"
+                          FontSize="18"                               
+                          Margin="100,80,0,0"                                 
+                          Text="{Binding TotalMotoCount}" IsReadOnly="True" />
 
                     </Grid>
                 </TabItem>
             </TabControl>
             <TextBlock x:Name="txtblckStatus"
                        Text="{Binding Info}"
-                       Margin="50,7,0,0"                       
-                       />
+                       Margin="50,7,0,0"  />
 
         </StackPanel>
     </Grid>

@@ -383,13 +383,14 @@ namespace NModbus.Device
             Transport.UnicastMessage<WriteFileRecordResponse>(request);
         }
 
-        public void ReadFileRecord(byte slaveAdress, ushort fileNumber, ushort startingAddress, byte[] data)
+        public byte[] ReadFileRecord(byte slaveAdress, ushort fileNumber, ushort startingAddress)
         {
+            byte[] data = new byte[1];
             ValidateMaxData("data", data, 0x1000);
             var request = new ReadFileRecordRequest (slaveAdress, new FileRecordCollection(fileNumber, startingAddress, data));
-            // new WriteFileRecordRequest(slaveAdress, new FileRecordCollection(fileNumber, startingAddress, data));
-
+            
             Transport.UnicastMessage<ReadFileRecordResponse>(request);
+            return data; // request.Data.Ta
         }
 
         /// <summary>
@@ -455,8 +456,7 @@ namespace NModbus.Device
 
         private ushort[] PerformReadRegisters(ReadHoldingInputRegistersRequest request)
         {
-            ReadHoldingInputRegistersResponse response =
-                Transport.UnicastMessage<ReadHoldingInputRegistersResponse>(request);
+            ReadHoldingInputRegistersResponse response = Transport.UnicastMessage<ReadHoldingInputRegistersResponse>(request);
             return response.Data.Take(request.NumberOfPoints).ToArray();
         }
 

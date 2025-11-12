@@ -16,7 +16,7 @@ using NModbus.Utility;
 using NModbus.IO;
 using NModbus.Serial;
 
-namespace EACharge_Out
+namespace EACharge
 {
     public class Bootloader
     {
@@ -145,7 +145,8 @@ namespace EACharge_Out
                     Thread.Sleep(10);
                 }
                 catch(Exception exc)
-                {
+                {   
+                    MessageBox.Show("Операция: "+ exc.Message);
                     _SerialPort.Close();
                     procOperation = false;
                     return procOperation;

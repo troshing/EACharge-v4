@@ -48,6 +48,7 @@ namespace NModbus.IO
         {
             IModbusMessage response = base.CreateResponse<T>(frame);
 
+            /*
             // compare checksum
             if (CheckFrame && !ChecksumsMatch(response, frame))
             {
@@ -55,6 +56,7 @@ namespace NModbus.IO
                 Logger.Warning(msg);
                 throw new IOException(msg);
             }
+            */
 
             return response;
         }

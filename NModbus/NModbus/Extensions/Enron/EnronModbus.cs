@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NModbus;
 using NModbus.Utility;
 
 namespace NModbus.Extensions.Enron
@@ -19,7 +20,7 @@ namespace NModbus.Extensions.Enron
         /// <param name="numberOfPoints">Number of holding registers to read.</param>
         /// <returns>Holding registers status</returns>
         public static uint[] ReadHoldingRegisters32(
-            this IModbusMaster master,
+            this IModbusMaster master,                      // comment: this
             byte slaveAddress,
             ushort startAddress,
             ushort numberOfPoints)

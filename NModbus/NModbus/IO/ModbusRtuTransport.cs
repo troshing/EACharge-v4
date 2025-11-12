@@ -15,7 +15,7 @@ namespace NModbus.IO
     {
         public const int RequestFrameStartLength = 7;
 
-        public const int ResponseFrameStartLength = 4;
+        public const int ResponseFrameStartLength = 3;
 
         internal ModbusRtuTransport(IStreamResource streamResource, IModbusFactory modbusFactory, IModbusLogger logger)
             : base(streamResource, modbusFactory, logger)
@@ -91,8 +91,7 @@ namespace NModbus.IO
 
         private byte[] ReadResponse()
         {
-
-             byte[] frameStart = Read(ResponseFrameStartLength);                // 4
+             byte[] frameStart = Read(ResponseFrameStartLength);                // 3
              byte[] frameEnd = Read(ResponseBytesToRead(frameStart));
              byte[] frame = frameStart.Concat(frameEnd).ToArray();
 
