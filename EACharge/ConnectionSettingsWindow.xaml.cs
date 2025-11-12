@@ -14,16 +14,16 @@ using System.Windows.Shapes;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
 
-namespace EACharge_Out
+namespace EACharge
 {
     /// <summary>
     /// Interaction logic for ConnectionSettingsWindow.xaml
     /// </summary>
     public partial class ConnectionSettingsWindow : Window
     {
-        Master _master;
+        EAMaster _master;
         
-        public ConnectionSettingsWindow(Master master)
+        public ConnectionSettingsWindow(EAMaster master)
         {
             InitializeComponent();            
             _master = master;

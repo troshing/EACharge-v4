@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +19,7 @@ using System.Drawing;
 using NModbus;
 using NModbus.Message;
 
-namespace EACharge_Out
+namespace EACharge
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -29,7 +28,7 @@ namespace EACharge_Out
     {
         bool IsUIBlocked { get; set; }
 
-        Master master;
+        EAMaster master;
 
         object selectedRWControl;
 
@@ -40,13 +39,14 @@ namespace EACharge_Out
         public MainWindow()
         {
             InitializeComponent();
-            master = new Master();
+            master = new EAMaster();
 
-            this.DataContext = master.EAChargeMonitor;
+            this.DataContext = master.eaChargeMonitor;
             txtblckStatus.DataContext = master;
-            txtAlarm.DataContext = master.EAChargeMonitor;
-            txtMode.DataContext = master.EAChargeMonitor;
-           
+            txtAlarm.DataContext = master.eaChargeMonitor;
+            txtMode.DataContext = master.eaChargeMonitor;
+            txtbxMotoCounter.DataContext = master.EAMotoCounter;
+            
             GetAllRWControls();
             GetTableOfRegisters();
 
@@ -60,12 +60,12 @@ namespace EACharge_Out
 
         public void BlockUI()
         {
-            foreach (var child in MyGrid2.Children)
+            foreach (var child in Measure.Children)
             {
                 if (!(child is TextBlock)) (child as UIElement).IsEnabled = false;
             }
 
-            foreach (var child in MyGrid1.Children)
+            foreach (var child in Options.Children)
             {
                 if (!(child is TextBlock)) (child as UIElement).IsEnabled = false;
             }
@@ -74,12 +74,12 @@ namespace EACharge_Out
 
         public void UnblockUI()
         {
-            foreach (var child in MyGrid2.Children)
+            foreach (var child in Measure.Children)
             {
                 if (!(child is TextBlock)) (child as UIElement).IsEnabled = true;
             }
 
-            foreach (var child in MyGrid1.Children)
+            foreach (var child in Options.Children)
             {
                 if (!(child is TextBlock)) (child as UIElement).IsEnabled = true;
             }
@@ -90,43 +90,40 @@ namespace EACharge_Out
         {
             rwControls = new List<object>();
 
-            foreach (var child in MyGrid2.Children)
+            foreach (var child in Measure.Children)
             {
                 if (child is TextBox) rwControls.Add(child as TextBox);
             }
 
-            foreach (var child in MyGrid1.Children)
+            foreach (var child in Options.Children)
             {
                 if (child is TextBox) rwControls.Add(child as TextBox);
                 else if (child is ComboBox) rwControls.Add(child as ComboBox);
             }
 
         }
-
         public void GetTableOfRegisters()
         {
             tableOfRegisters = new Dictionary<object, RegisterBase>
             {
-                {txtbxResistance, master.EAChargeMonitor.Registers[0] },
-                {txtbxVoltage, master.EAChargeMonitor.Registers[1] },
-                {txtbxCapacitance, master.EAChargeMonitor.Registers[2] },
-                {txtbxVoltagePlus, master.EAChargeMonitor.Registers[3] },
-                {txtbxVoltageMinus, master.EAChargeMonitor.Registers[4] },
-                {txtbxResistancePlus, master.EAChargeMonitor.Registers[5] },
-                {txtbxResistanceMinus, master.EAChargeMonitor.Registers[6] },
-                {txtbxPreAlarm, master.EAChargeMonitor.Registers[7] },
-                {txtbxAlarm, master.EAChargeMonitor.Registers[8] },
-                {txtbxAddress, master.EAChargeMonitor.Registers[9] },
-                {cmbbxBaudRate, master.EAChargeMonitor.Registers[10] },
-                {cmbbxParity, master.EAChargeMonitor.Registers[11] },
-                {txtbxDelay, master.EAChargeMonitor.Registers[12] },
-                {txtbxDeviceName, master.EAChargeMonitor.Registers[13] },
-                {txtbxID, master.EAChargeMonitor.Registers[14] },
-                {txtbxFirmwareVersion, master.EAChargeMonitor.Registers[15] }
+                {txtbxResistance, master.eaChargeMonitor.Registers[0] },
+                {txtbxVoltage, master.eaChargeMonitor.Registers[1] },
+                {txtbxCapacitance, master.eaChargeMonitor.Registers[2] },
+                {txtbxVoltagePlus, master.eaChargeMonitor.Registers[3] },
+                {txtbxVoltageMinus, master.eaChargeMonitor.Registers[4] },
+                {txtbxResistancePlus, master.eaChargeMonitor.Registers[5] },
+                {txtbxResistanceMinus, master.eaChargeMonitor.Registers[6] },
+                {txtbxPreAlarm, master.eaChargeMonitor.Registers[7] },
+                {txtbxAlarm, master.eaChargeMonitor.Registers[8] },
+                {txtbxAddress, master.eaChargeMonitor.Registers[9] },
+                {cmbbxBaudRate, master.eaChargeMonitor.Registers[10] },
+                {cmbbxParity, master.eaChargeMonitor.Registers[11] },
+                {txtbxDelay, master.eaChargeMonitor.Registers[12] },
+                {txtbxDeviceName, master.eaChargeMonitor.Registers[13] },
+                {txtbxID, master.eaChargeMonitor.Registers[14] },
+                {txtbxFirmwareVersion, master.eaChargeMonitor.Registers[15] }
             };
         }
-
-
 
         private void LastFocusedTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -141,25 +138,28 @@ namespace EACharge_Out
             }
             catch (TimeoutException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Время ожидания истекло");
             }
             catch (SlaveException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Ошибка чтения");
             }
             catch (UnauthorizedAccessException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Выбранный порт занят", "Ошибка");
             }
             catch (System.IO.IOException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Порт с указанным именем не существует", "Ошибка");
                 if (!master.ArePortsExist())
                 {
                     MessageBox.Show("В системе нет доступных COM портов", "Ошибка");
                     BlockUI();
                 }
-
             }
         }
 
@@ -178,18 +178,22 @@ namespace EACharge_Out
             }
             catch (TimeoutException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Время ожидания истекло");
             }
             catch (SlaveException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Ошибка чтения");
             }
             catch (UnauthorizedAccessException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Выбранный порт занят", "Ошибка");
             }
             catch (System.IO.IOException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Порт с указанным именем не существует", "Ошибка");
                 if (!master.ArePortsExist())
                 {
@@ -210,18 +214,22 @@ namespace EACharge_Out
             }
             catch (TimeoutException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Время ожидания истекло.");
             }
             catch (SlaveException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Ошибка записи", "Ошибка");
             }
             catch (UnauthorizedAccessException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Выбранный порт занят", "Ошибка");
             }
             catch (System.IO.IOException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Порт с указанным именем не существует", "Ошибка");
                 if (!master.ArePortsExist())
                 {
@@ -244,19 +252,23 @@ namespace EACharge_Out
             }
             catch (TimeoutException ex)
             {
-                MessageBox.Show("Время ожидания истекло", "Таймаут" + ex.Message);
+                ex.ToString();
+                MessageBox.Show("Время ожидания истекло", "Таймаут");
             }
             catch ( SlaveException ex)
             {
-                MessageBox.Show("Ошибка чтения", "Ошибка" + ex.Message);
+                ex.ToString();
+                MessageBox.Show("Ошибка чтения", "Ошибка");
             }
             catch (UnauthorizedAccessException ex)
             {
-                MessageBox.Show("Выбранный порт занят", "Ошибка" + ex.Message);
+                ex.ToString();
+                MessageBox.Show("Выбранный порт занят", "Ошибка");
             }
             catch (System.IO.IOException ex)
             {
-                MessageBox.Show("Порт с указанным именем не существует", "Ошибка" + ex.Message);
+                ex.ToString();
+                MessageBox.Show("Порт с указанным именем не существует", "Ошибка");
                 if (!master.ArePortsExist())
                 {
                     MessageBox.Show("В системе нет доступных COM портов", "Ошибка");
@@ -276,26 +288,29 @@ namespace EACharge_Out
             }
             catch (TimeoutException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Время ожидания истекло");
             }
             catch (SlaveException ex)
             {
+                ex.ToString();
                 MessageBox.Show("Ошибка чтения");
             }
             catch (UnauthorizedAccessException ex)
             {
-                MessageBox.Show("Выбранный порт занят", "Ошибка" + ex.Message);
+                ex.ToString();
+                MessageBox.Show("Выбранный порт занят", "Ошибка");
             }
             catch (System.IO.IOException ex)
             {
-                MessageBox.Show("Порт с указанным именем не существует" + ex.Message, "Ошибка" + ex.Message);
+                ex.ToString();
+                MessageBox.Show("Порт с указанным именем не существует" + ex.Message, "Ошибка");
                 if (!master.ArePortsExist())
                 {
                     MessageBox.Show("В системе нет доступных COM портов", "Ошибка");
                     BlockUI();
                 }
             }
-
         }
 
         private void CmbbxBaudRate_LostFocus(object sender, RoutedEventArgs e)
@@ -314,7 +329,7 @@ namespace EACharge_Out
             connectionSettingsWindow.ShowDialog();
             if (IsUIBlocked && master.ArePortsExist() && master._SerialPort.PortName != " ")
             {
-                UnblockUI();                
+                UnblockUI();
             }
         }
 
@@ -334,7 +349,6 @@ namespace EACharge_Out
             }
 
         }
-
         private void BtnFactorySetting_Click(object sender, RoutedEventArgs e)
         {
             master.FactorySetting();
@@ -380,8 +394,46 @@ namespace EACharge_Out
 
         private void MenuItemExit_Click(object sender, RoutedEventArgs e)
         {
-            // if (!master.IsPoll) { }
+            if (!master.IsPoll) { master.StopPoll(); }
             this.Close();
+        }
+
+        private void btnTestMotoCounter_Click(object sender, RoutedEventArgs e)
+        {
+            // Запуск Теста МотоЧасов       
+            master.RunTestMotoCounter();
+        }
+
+        private void btnReadMotoCounter_Click(object sender, RoutedEventArgs e)
+        {
+            // Считывание Мото часов
+            master.ReadMotocounter();
+        }
+
+        private void btnSaveMotoCounter_Click(object sender, RoutedEventArgs e)
+        {
+            // Запись Мото часов(начальное время) во вн флэш память 
+            master.SaveMotocounter();
+        }
+
+        private void BtnGetProtectLevel_Click(object sender, RoutedEventArgs e)
+        {
+            // Получить уровень защиты 
+        }
+
+        private void BtnOpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            // Открыть файл прошивки
+        }
+
+        private void BtnReloadBoot_Click(object sender, RoutedEventArgs e)
+        {
+            // Перезагрузка контроллера
+        }
+
+        private void BtnSendProgramm_Click(object sender, RoutedEventArgs e)
+        {
+            // Начать программирование контроллера
         }
     }
 }

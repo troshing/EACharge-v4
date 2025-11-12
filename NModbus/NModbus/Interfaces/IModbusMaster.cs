@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NModbus.Extensions.Enron;
 
 namespace NModbus
 {
@@ -201,8 +202,8 @@ namespace NModbus
         /// <param name="slaveAdress">Address of device to read values to</param>
         /// <param name="fileNumber">The Extended Memory file number</param>
         /// <param name="startingAddress">The starting register address within the file</param>
-        /// <param name="data">The data to be written</param>
-        void ReadFileRecord(byte slaveAdress, ushort fileNumber, ushort startingAddress, byte[] data);
+        /// <returns>The data to be read</returns>
+        byte[] ReadFileRecord(byte slaveAdress, ushort fileNumber, ushort startingAddress);
 
         /// <summary>
         ///    Executes the custom message.

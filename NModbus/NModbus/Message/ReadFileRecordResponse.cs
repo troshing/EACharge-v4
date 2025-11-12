@@ -13,12 +13,12 @@ namespace NModbus.Message
         }
 
         public ReadFileRecordResponse(byte slaveAddress)
-            : base(slaveAddress, ModbusFunctionCodes.WriteFileRecord)
+            : base(slaveAddress, ModbusFunctionCodes.ReadFileRecord)
         {
         }
 
         public ReadFileRecordResponse(byte slaveAddress, FileRecordCollection data)
-            : base(slaveAddress, ModbusFunctionCodes.WriteFileRecord)
+            : base(slaveAddress, ModbusFunctionCodes.ReadFileRecord)
         {
             Data = data;
         }

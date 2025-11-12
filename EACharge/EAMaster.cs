@@ -11,10 +11,15 @@ using System.Windows;
 using NModbus;
 using NModbus.Device;
 using NModbus.Serial;
+using NModbus.SerialPortStream;
+using NModbus.Logging;
+using NModbus.Extensions.Enron;
+using EACharge;
+using System.Collections;
 
-namespace EACharge_Out
+namespace EACharge
 {
-    public class Master : INotifyPropertyChanged
+    public class EAMaster : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
@@ -33,11 +38,15 @@ namespace EACharge_Out
         Task pollTask;
         public bool IsPoll { get; private set; }
 
-        public EAChargeMonitor EAChargeMonitor { get; set; }
+        public EAChargeMonitor eaChargeMonitor; //{ get; set; }
+        public EAMotoCounter EAMotoCounter { get; set; } 
+
+        private EATestUnit testUnit {  get; set; }
+
         private SerialPortAdapter serialPortAdapter;
-
-        IModbusMaster ModbusMaster { get; set; }
-
+        private IModbusLogger modbusLogger;
+        private IModbusMaster ModbusMaster { get; set; }
+               
         private ModbusFactory factory;
 
         public SerialPort _SerialPort { get; set; }
@@ -54,27 +63,37 @@ namespace EACharge_Out
             }
         }
 
-        public Master()
+        public EAMaster()
         {
             _SerialPort = new SerialPort(GetPortName(), 115200, Parity.None, 8, StopBits.One);
-            _SerialPort.ReadTimeout = 2000;
-            _SerialPort.WriteTimeout = 1000;
+            _SerialPort.ReadTimeout = 100;
+            _SerialPort.WriteTimeout = 100;
             SlaveAddress = 0x0A;                // по умолчанию "10" 
             serialPortAdapter = new SerialPortAdapter(_SerialPort);
-            factory = new ModbusFactory();
+
+            modbusLogger = new ConsoleModbusLogger(LoggingLevel.Debug);
+            factory = new ModbusFactory(null,true,modbusLogger);
             
             ModbusMaster = factory.CreateRtuMaster(serialPortAdapter);
-            ModbusMaster.Transport.WriteTimeout = 2000;
-            ModbusMaster.Transport.ReadTimeout = 2000;
+            ModbusMaster.Transport.WriteTimeout = 100;
+            ModbusMaster.Transport.ReadTimeout = 3000;
+            
+            modbusLogger = factory.Logger;
+            modbusLogger.ShouldLog(LoggingLevel.Debug);
+            
             ModbusMaster.Transport.Retries = 1;
             ModbusMaster.Transport.WaitToRetryMilliseconds = 300;
-            EAChargeMonitor = new EAChargeMonitor();
+
+            eaChargeMonitor = new EAChargeMonitor();
+            EAMotoCounter = new EAMotoCounter();
+            EAMotoCounter.SetTestData();
+            testUnit = new EATestUnit();                // Создание класса для Тестов
             UpdateInfo();
         }
 
         public void GetChargeMonitor(ref EAChargeMonitor monitor)
         {
-            monitor = EAChargeMonitor;
+            monitor = eaChargeMonitor;
         }
         public string GetPortName()
         {
@@ -109,6 +128,7 @@ namespace EACharge_Out
             }
             catch (Exception e)
             {
+                MessageBox.Show("Исключение: " + e.ToString());
                 _SerialPort.Close();
                 throw;
             }
@@ -133,11 +153,11 @@ namespace EACharge_Out
                     case IValue<ushort> r:
                         if (registerBase.Address == 3005)
                         {
-                            EAChargeMonitor.valPreAlarm = r.Value;
+                            eaChargeMonitor.valPreAlarm = r.Value;
                         }
                         else if(registerBase.Address == 3007)
                         {
-                            EAChargeMonitor.valAlarm = r.Value;
+                            eaChargeMonitor.valAlarm = r.Value;
                         }
                         ModbusMaster.WriteMultipleRegisters(SlaveAddress, registerBase.Address, new ushort[] { r.Value });
                         break;
@@ -151,6 +171,7 @@ namespace EACharge_Out
             }
             catch (Exception e)
             {
+                MessageBox.Show("Исключение: " + e.ToString());
                 throw;
             }
             finally
@@ -165,19 +186,23 @@ namespace EACharge_Out
             try
             {
                 _SerialPort.Open();
-                ushort[] response = { 0};
+                ushort[] response = new ushort[registerBase.Length];
+                
                 if (registerBase.Address == 9800)        // EAChargeMonitor.Registers[index:13])
                 {
-                    byte[] txtresponse = new byte[20];
-                    // вызвать ModbusMaster.ReadFileRecord
-                    ModbusMaster.ReadFileRecord(SlaveAddress, 0x01,0x01, txtresponse);
+                    uint[] txtresponse = new uint[5];
+                    // testUnit.SetTextArray();                    
+                    txtresponse = ModbusMaster.ReadHoldingRegisters32(SlaveAddress, registerBase.Address, registerBase.Length);
+                    byte[] byteString = Converter.ConvertUintArrayToByteArray(txtresponse);
+                    eaChargeMonitor.DeviceName = Encoding.Default.GetString(byteString);
+
                 }
                 else
                 {
-                    response = ModbusMaster.ReadHoldingRegisters(SlaveAddress, registerBase.Address, registerBase.Length);
+                    response = ModbusMaster.ReadHoldingRegisters(SlaveAddress, registerBase.Address, registerBase.Length);                    
                 }    
-                
-             EAChargeMonitor.ParseResponse(registerBase, response);
+              
+              eaChargeMonitor.ParseResponse(registerBase,response);
             }
             catch (Exception e)
             {
@@ -189,23 +214,72 @@ namespace EACharge_Out
             }
         }
 
+        public void ReadOneRegister32(RegisterBase registerBase, ref long value)
+        {
+            value = 0;
+            try
+            {
+                _SerialPort.Open();
+                uint[] response = { 0 };
+                uint[] time = new uint[2];
+                response = ModbusMaster.ReadHoldingRegisters32(SlaveAddress, registerBase.Address, registerBase.Length);
+                                 
+                time[0] = (uint)(response[0] & 0x0000FFFF) << 16;
+                time[1] = (uint)(response[0] & 0xFFFF0000) >> 16;
+                value = time[0] | time[1];
+             }
+            catch (Exception e)
+            {
+                MessageBox.Show("Исключение: " + e.ToString());
+            }
+            finally
+            {
+                _SerialPort.Close();
+            }
+        }
+        public void WriteOneRegister32(RegisterBase registerBase, long value)
+        {
+            try
+            {
+                _SerialPort.Open();
+               
+                uint[] time = new uint[2];
+                long temp = 0;
+                time[0] = (uint)(value & 0xFFFF0000);
+                temp = value & 0x0000FFFF;
+                time[0]|= (uint)temp;
+
+                ModbusMaster.WriteMultipleRegisters32(SlaveAddress, registerBase.Address, time);
+
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Исключение: " + e.ToString());
+            }
+            finally
+            {
+                _SerialPort.Close();
+            }
+        }
+
+
         public void ReadAllMeasuringRegisters()
         {
             try
             {
-                for (int i = 0; i < EAChargeMonitor.NumberOfMeasuringRegisters; i++)
+                for (int i = 0; i < eaChargeMonitor.NumberOfMeasuringRegisters; i++)
                 {
-                    ReadRegisters(EAChargeMonitor.Registers[i]);
+                    ReadRegisters(eaChargeMonitor.Registers[i]);
                     Thread.Sleep(50);
                 }
             }
             catch (TimeoutException e)
             {
-                throw;
+                MessageBox.Show("Исключение: " + e.ToString());
             }
             catch (SlaveException e)
             {
-                throw;
+                MessageBox.Show("Исключение: " + e.ToString());
             }
         }
 
@@ -213,19 +287,19 @@ namespace EACharge_Out
         {
             try
             {
-                for (int i = 7; i < EAChargeMonitor.Registers.Count; i++)
+                for (int i = 7; i < eaChargeMonitor.Registers.Count; i++)
                 {
-                    ReadRegisters(EAChargeMonitor.Registers[i]);
+                    ReadRegisters(eaChargeMonitor.Registers[i]);
                     Thread.Sleep(50);
                 }
             }
             catch (TimeoutException e)
             {
-                //throw;
+                MessageBox.Show("Таймаут: " + e.ToString());
             }
             catch (SlaveException e)
             {
-                throw;
+                MessageBox.Show("Исключение: " + e.ToString());
             }
         }
 
@@ -276,7 +350,7 @@ namespace EACharge_Out
                                     break;
                             }
 
-                            ReadRegisters(EAChargeMonitor.Registers[9]); // регистр адреса устройства
+                            ReadRegisters(eaChargeMonitor.Registers[9]); // регистр адреса устройства
 
                             isFound = true;
 
@@ -284,6 +358,7 @@ namespace EACharge_Out
                         }
                         catch (Exception e)
                         {
+                            MessageBox.Show("Исключение: " + e.ToString());
 
                         }
                     }
@@ -299,15 +374,48 @@ namespace EACharge_Out
                 }
                 catch (Exception e)
                 {
-
+                    MessageBox.Show("Исключение: " + e.ToString());
                 }
             }
 
-            SlaveAddress = (byte)(EAChargeMonitor.Registers[9] as IValue<ushort>).Value;
+            SlaveAddress = (byte)(eaChargeMonitor.Registers[9] as IValue<ushort>).Value;
             UpdateInfo();
             return isFound;
         }
 
+        public void RunTestMotoCounter()
+        {
+            EAMotoCounter.TestElapsed();
+        }
+
+        public void ReadMotocounter()
+        {
+            ushort register;
+            byte regIdx;
+            long valTicks = 0;
+            regIdx = eaChargeMonitor.GetBaseRegisterIndex("Motocounter");
+            register = eaChargeMonitor.GetBaseAddress("Motocounter");
+            ReadOneRegister32(eaChargeMonitor.Registers[regIdx],ref valTicks);
+            DateTimeOffset dtOffset = DateTimeOffset.FromUnixTimeSeconds(valTicks);
+            valTicks = dtOffset.Ticks;
+            eaChargeMonitor.valMotocounter = valTicks;
+            
+            EAMotoCounter.SetTimeTicks(eaChargeMonitor.valMotocounter);
+            EAMotoCounter.GetStrMotorCounter();
+        }
+
+        public void SaveMotocounter()
+        {
+            ushort register;
+            byte regIdx;
+            long valTicks = 0;
+            regIdx = eaChargeMonitor.GetBaseRegisterIndex("Motocounter");
+            register = eaChargeMonitor.GetBaseAddress("Motocounter");
+
+            valTicks = ((DateTimeOffset)EAMotoCounter.originDT).ToUnixTimeSeconds();
+            eaChargeMonitor.valMotocounter = valTicks;
+            WriteOneRegister32(eaChargeMonitor.Registers[regIdx], eaChargeMonitor.valMotocounter);
+        }
 
         public void StartPoll(int interval)
         {
@@ -325,10 +433,10 @@ namespace EACharge_Out
         {
             while (IsPoll)
             {
-                for (int i = 0; i < EAChargeMonitor.NumberOfMeasuringRegisters && IsPoll; i++)
+                for (int i = 0; i < eaChargeMonitor.NumberOfMeasuringRegisters && IsPoll; i++)
                 {
-                    ReadRegisters(EAChargeMonitor.Registers[i]);
-                    ReadRegisters(EAChargeMonitor.Registers[16]);                    
+                    ReadRegisters(eaChargeMonitor.Registers[i]);
+                    ReadRegisters(eaChargeMonitor.Registers[16]);                    
                     Thread.Sleep(interval);
                 }
 

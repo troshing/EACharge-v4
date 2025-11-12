@@ -13,7 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace EACharge_Out
+namespace EACharge
 {
     public class EAChargeMonitor : INotifyPropertyChanged
     {
@@ -21,6 +21,7 @@ namespace EACharge_Out
         
         public String _textAlarm;
         public String _textMode;
+        public String _txtDeviceName;
         
         private System.Windows.Media.Brush _frgrAlarm;
         private System.Windows.Media.Brush _frgrMode;
@@ -50,6 +51,14 @@ namespace EACharge_Out
                 SetField(ref _frgrMode, value, "ForegroundMode");
             }
         }
+        public String DeviceName
+        {
+            get => _txtDeviceName;
+            set
+            {
+                SetField(ref _txtDeviceName, value, "DeviceName");
+            }
+        }
 
         public String TextAlarm
         {
@@ -66,12 +75,26 @@ namespace EACharge_Out
             {
                 SetField(ref _textMode, value, "TextMode");
             }
-        }       
+        }
+
+        private float _firmwareVersion;
+        /// <summary>
+        /// Версия прошивки         
+        /// Registers[15].Value
+        // </summary>
+        public float FirmwareVersion            
+        {
+            get => _firmwareVersion;
+            set
+            {
+                SetField(ref _firmwareVersion, value, "FirmwareVersion");
+            }
+        }
 
         public ushort valPreAlarm { get; set; }
         public ushort valAlarm { get; set; }
-
         private ushort valHyster {  get; set; }
+        public long valMotocounter { get; set; }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -111,20 +134,43 @@ namespace EACharge_Out
                 new RegisterUshort(3017, "Parity", 1),
                 new RegisterUshort(3018, "Delay", 1),
                 //new RegisterUshort(8003, "Factory Reset", 1),
-                new RegisterString(9800, "Device Name", 1),
+                new RegisterString(9800, "Device Name", 5),
                 new RegisterUshort(9820, "ID", 1),
                 new RegisterUshort(9821, "Firmware Version", 1),
                 new RegisterUshort(9822, "Operation Mode", 1),
+                new RegisterUshort(9823,"Motocounter",1),
+                // new RegisterUshort(9824, "Bootloader", 1),                          // [16] 
+                new RegisterUshort(9830, "ProtectLevel", 1),        // [17]  
             };
         }
 
-        public ushort GetBaseAddress()
+        public ushort GetBaseAddress(string regName)
         {
             ushort tmpAddr = 0;
-
+            for (int i = 0; i < Registers.Count; i++)
+            {
+                if (Registers[i].Name == regName)
+                {
+                    tmpAddr = Registers[i].Address;
+                }
+            }
+                        
             return tmpAddr;
-
         }
+        public byte GetBaseRegisterIndex(string regName)
+        {
+            byte tmpIdx = 0;
+            for (int i = 0; i < Registers.Count; i++)
+            {
+                if (Registers[i].Name == regName)
+                {
+                    tmpIdx = (byte)i;
+                }
+            }
+
+            return tmpIdx;
+        }
+
         public void ParseResponse(RegisterBase register, ushort[] data)
         {
             switch (register)
@@ -197,6 +243,12 @@ namespace EACharge_Out
                                 ForegroundMode = System.Windows.Media.Brushes.GreenYellow;
                                 TextMode = String.Format("РАБОТА", ForegroundMode);
                             }
+                            break;
+                        case "Firmware Version":
+                            FirmwareVersion = r.Value * 0.1f;
+                            break;
+                        case "Motocounter":
+                            valMotocounter = r.Value;
                             break;
                     }
                     break;
@@ -331,16 +383,3 @@ namespace EACharge_Out
 //    }
 //}
 
-//private ushort _firmwareVersion;
-///// <summary>
-///// Версия прошивки
-///// </summary>
-//public ushort FirmwareVersion
-//{
-//    get => _firmwareVersion;
-//    set
-//    {
-//        _firmwareVersion = value;
-//        OnPropertyChanged();
-//    }
-//}

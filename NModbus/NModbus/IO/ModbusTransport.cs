@@ -160,7 +160,7 @@ namespace NModbus.IO
                         while (readAgain);
                     }
 
-                    ValidateResponse(message, response);
+                    // ValidateResponse(message, response);
                     success = true;
                 }
                 catch (SlaveException se)

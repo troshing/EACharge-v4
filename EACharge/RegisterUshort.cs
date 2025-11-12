@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace EACharge_Out
+namespace EACharge
 {
     class RegisterUshort : RegisterBase, IValue<ushort>
     {

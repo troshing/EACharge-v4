@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EACharge_Out
+namespace EACharge
 {
     /// <summary>
     /// Вспомогательный класс-конвертер
@@ -29,7 +29,6 @@ namespace EACharge_Out
                 bArray[j + 1] = oneUshort[0];
                 j += 2;
             }
-
             return bArray;
         }
         /// <summary>
@@ -52,7 +51,30 @@ namespace EACharge_Out
 
             return uArray;
         }
+        /// <summary>
+        /// Преобразует массив uints в массив byte
+        /// </summary>
+        /// <param name="uArray">исходный массив ushort</param>
+        /// <returns>массив byte</returns>
+        public static byte[] ConvertUintArrayToByteArray(uint[] uiArray)
+        {
+            byte[] bArray = new byte[uiArray.Length * 4];
 
+            int j = 0;
+
+            for (int i = 0; i < uiArray.Length; i++)
+            {
+                byte[] oneUint = BitConverter.GetBytes(uiArray[i]);
+
+                oneUint = EndianUtilities.Swap(oneUint, oneUint.Length);
+
+                Array.Copy(oneUint, 0, bArray, j, oneUint.Length);
+                               
+                j += 4;
+            }
+
+            return bArray;
+        }
 
         /// <summary>
         /// Преобразует массив из двух ushort в float значение

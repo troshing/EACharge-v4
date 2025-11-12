@@ -31,14 +31,11 @@ namespace NModbus.Device
         /// <returns>Return true if slave device echoed data.</returns>
         public bool ReturnQueryData(byte slaveAddress, ushort data)
         {
-            DiagnosticsRequestResponse request = new DiagnosticsRequestResponse(
-                ModbusFunctionCodes.DiagnosticsReturnQueryData,
-                slaveAddress,
-                new RegisterCollection(data));
+          DiagnosticsRequestResponse request = new DiagnosticsRequestResponse( ModbusFunctionCodes.DiagnosticsReturnQueryData,slaveAddress, new RegisterCollection(data));
 
-            DiagnosticsRequestResponse response = Transport.UnicastMessage<DiagnosticsRequestResponse>(request);
+          DiagnosticsRequestResponse response = Transport.UnicastMessage<DiagnosticsRequestResponse>(request);
 
-            return response.Data[0] == data;
+          return response.Data[0] == data;
         }
     }
 }

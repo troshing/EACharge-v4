@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SerialPortStream" Version="2.4.1" />
+    <PackageReference Include="SerialPortStream" Version="2.4.2" />
   </ItemGroup>
 
   <ItemGroup>

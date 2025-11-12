@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 
-namespace EACharge_Out
+namespace EACharge
 {
     /// <summary>
     /// Базовый класс для любого типа регистра

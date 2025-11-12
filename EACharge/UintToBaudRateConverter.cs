@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace EACharge_Out
+namespace EACharge
 {
     public class UintToBaudRateConverter : IValueConverter
     {
